@@ -1,0 +1,15 @@
+div[data-testid="stHorizontalBlock"]+div[data-testid="stExpander"] {
+    max-height: 300px;
+    overflow-y: scroll;
+}
+
+div.streamlit-expanderContent {
+    height: 500px;
+    max-height: 500px;
+    position: relative;
+    overflow-y: scroll;
+}
+
+div.streamlit-expanderContent img {
+    height: 254px !important;
+}

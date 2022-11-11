@@ -1,0 +1,15 @@
+.idea/
+__pycache__/
+
+.venv/
+.env
+
+error.csv
+json_decode_error.csv
+other_errors.csv
+*.log
+
+# size > 100MB
+cleaned_books_combined.csv
+literal-split-*.csv
+literal_demo_data.csv
