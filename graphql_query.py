@@ -1,4 +1,6 @@
 import csv
+import pprint
+from typing import List
 import requests
 import time
 import json
@@ -6,6 +8,7 @@ import pandas as pd
 
 from requests import Response
 from json import JSONDecodeError
+from constants import FIELDNAMES_AUTHOR
 
 from processing_base import CPUTaskSupports
 
@@ -148,7 +151,7 @@ class GraphQLQuery(CPUTaskSupports):
             self.log_error(response_status_code=response.status_code)
             return self.DEFAULT_FALLBACK_RESPONSE
 
-    def write_to_csv(self, fieldnames: list[str], rows: list[dict], custom_filename="", row_values=None) -> None:
+    def write_to_csv(self, fieldnames: List[str], rows: List[dict], custom_filename="", row_values=None) -> None:
         """
         Util for printing out dictionary values to a csv file
         """
@@ -161,6 +164,27 @@ class GraphQLQuery(CPUTaskSupports):
                 _writer.writerow(row_values)
             else:
                 _writer.writerows(rowdicts=rows)
+
+    def save_authors(self, _authors, book_id, book_title, search_book_api):
+        # fresh copy of dictionaries, avoid mutation
+        authors = [dict(_author) for _author in _authors]
+
+        for author in authors:
+            author["book_id"] = book_id
+            author["book_title"] = book_title
+            self.author_count += 1
+            author["count"] = self.author_count
+            author["from_query"] = self.query
+            author["from_search_book_api"] = search_book_api
+
+            print('\n\n\nSaving author: ...')
+            pprint(author)
+
+        self.write_to_csv(
+            fieldnames=FIELDNAMES_AUTHOR,
+            rows=authors,
+            custom_filename=self.author_csv
+        )
 
     def search(self, query_name="searchQuery"):
         # with limit?

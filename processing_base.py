@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 # multiprocessing
 from multiprocessing import Process
 # multithreading
@@ -22,7 +22,7 @@ class CPUTaskSupports:
             self.thread_local.session = Session()
         return self.thread_local.session
 
-    def multiprocess_jobs(self, target_args: tuple[Any, ...], target_function: Any):
+    def multiprocess_jobs(self, target_args: tuple, target_function: Any):
         i = 0
         while i < self.NUM_PROCESSES - 1:
             process = Process(target=target_function, args=target_args)
@@ -40,7 +40,7 @@ class CPUTaskSupports:
         for j in self.jobs:
             j.join()
 
-    def multithread_process(self, items: list[Any], target_function: Any) -> None:
+    def multithread_process(self, items: List[Any], target_function: Any) -> None:
         for item in items:
             self.queue.put(item)
 

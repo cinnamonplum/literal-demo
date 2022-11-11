@@ -7,7 +7,7 @@ import streamlit as st
 
 from PIL import Image
 from pprint import pprint
-from typing import Any, Callable
+from typing import Any, Callable, Dict, List
 from dotenv import load_dotenv
 from marqo.errors import IndexAlreadyExistsError, IndexNotFoundError
 
@@ -25,10 +25,12 @@ class StreamlitDemoBase(CPUTaskSupports):
     DEFAULT_INDEX_NAME = "default-v4mpnetbase"
     DEFAULT_PRE_FILTERING_OPTIONS = []
     DEFAULT_SEARCHABLE_ATTRS = []
-    filter_attrs: list[dict[str, str]] = [
+    filter_attrs: List[Dict[str, str]] = [
         {"filter": "filter_name", "pattern": "filter_name:\[(.*?)\]"},
     ]
     fallback_img = ""
+    tabs = []
+    minimal = False  # all features if False
 
     def __init__(self, *args, **kwargs):
         self.api_key = None
@@ -48,7 +50,6 @@ class StreamlitDemoBase(CPUTaskSupports):
         self.filtering = None
         self.pre_filtering_options = ""
         self.searchable_attrs = ""
-        self.minimal = False  # all features if False
         self.render_in_img_expanded_cols = True  # prettifies results ui into columns
         # Streamlit configuration settings
         st.set_page_config(
@@ -95,7 +96,8 @@ class StreamlitDemoBase(CPUTaskSupports):
                         filter_string = f"{filter_string[:last_match.span()[1]]} OR {field}{filter_string[last_match.span()[1]:]}"
                     else:
                         filter_string += f"{' AND ' if filter_string != '' else ''}({field})"
-
+        print(filter_list)
+        print(filter_string)
         return filter_string
 
     def clean_dataset(self, _csv_dataset, _csv_header):
@@ -234,7 +236,7 @@ class StreamlitDemoBase(CPUTaskSupports):
             self.search_text = st.text_input("Text Search")
 
         with search_mode_col:
-            self.search_mode = st.radio("Search Mode", SEARCH_MODE_OPTIONS, horizontal=True,
+            self.search_mode = st.radio("Search Mode", self.SEARCH_MODE_OPTIONS, horizontal=True,
                                         on_change=self.reset_state)
 
         if self.search_mode == TEXT_SEARCH_MODE:
@@ -330,7 +332,7 @@ class StreamlitDemoBase(CPUTaskSupports):
         score = params.get("_score", 0)
         highlights = params.get("_highlights", "")
         detail_title = params.get("detail_title", "")
-        img = param.get("img", "")
+        img = params.get("img", "")
         row_counter += 1
 
         if type(highlights) == list:
@@ -339,15 +341,15 @@ class StreamlitDemoBase(CPUTaskSupports):
             readable_highlights = list(highlights.values())[0] if self.search_method.upper(
             ) == TENSOR_SEARCH_MODE or self.search_mode == IMAGE_SEARCH_MODE else None
 
-            with st.expander(f"{detail_title}", expanded=True):
-                if img:
-                    st.image(img)
-                else:
-                    st.image(self.fallback_img)
-                st.info(f"**{detail_title}**\n\nScore: {score}\n\n**Highlights:** {readable_highlights}",
-                        icon="ℹ️")
-                for param in params:
-                    st.write(f"{param['name']}: {param['value']}")
+        with st.expander(f"{detail_title}", expanded=True):
+            if img:
+                st.image(img)
+            else:
+                st.image(self.fallback_img)
+            st.info(f"**{detail_title}**\n\nScore: {score}\n\n**Highlights:** {readable_highlights}",
+                    icon="ℹ️")
+            for param_key, param_value in params.items():
+                st.write(f"{param_key}: {param_value}")
 
         return row_counter
 
@@ -382,7 +384,7 @@ class StreamlitDemoBase(CPUTaskSupports):
                 single_col, _ = st.columns([6, 6])
                 with single_col:
                     row = hits[i]
-                    i = self.render_detail(row=row, i=i)
+                    i = self.render_detail_w_img(row=row, i=i)
             else:
                 cols = st.columns(2)
 
