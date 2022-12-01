@@ -83,8 +83,8 @@ class StreamlitApp(StreamlitDemoBase):
 
         try:
             raw_authors = eval(raw_authors)
-            authors = "".join([author.get("name", "")
-                              for author in raw_authors])
+            authors = ", ".join([author.get("name", "")
+                                for author in raw_authors])
         except Exception as err:
             authors = raw_authors
             print(err)
