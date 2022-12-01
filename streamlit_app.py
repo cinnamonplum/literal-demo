@@ -1,3 +1,4 @@
+import json
 import streamlit as st
 
 from dotenv import load_dotenv
@@ -78,7 +79,17 @@ class StreamlitApp(StreamlitDemoBase):
         """Override based on demo requirements."""
 
         formatted_params = super().format_detail_params(row)
-        formatted_params["authors"] = row[1].get("authors", "")
+        raw_authors = row[1].get("authors", "")
+
+        try:
+            raw_authors = eval(raw_authors)
+            authors = "".join([author.get("name", "")
+                              for author in raw_authors])
+        except Exception as err:
+            authors = raw_authors
+            print(err)
+
+        formatted_params["authors"] = authors
         formatted_params["bio"] = row[1].get("bio", "")
         formatted_params["img"] = row[1].get("cover", "")
         formatted_params["createdAt"] = row[1].get("createdAt", "")
