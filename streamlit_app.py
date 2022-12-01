@@ -41,7 +41,7 @@ class StreamlitApp(StreamlitDemoBase):
         # general
         "filter",
     ]
-    DEFAULT_INDEX_NAME = "literal-vitus"
+    DEFAULT_INDEX_NAME = "literal-data"
     DEFAULT_PRE_FILTERING_OPTIONS = [
         "filter:(profiles)",
         "filter:(shelves)",
