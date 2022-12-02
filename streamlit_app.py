@@ -54,12 +54,13 @@ class StreamlitApp(StreamlitDemoBase):
         "title",
         "subtitle",
         "description",
-        "isbn10",
-        "isbn13",
-        "language",
+        # "isbn10",
+        # "isbn13",
+        # "language",
         # "publishedDate",
         "publisher",
         "authors",
+        "name",
         # "club_name",
     ]
     filter_attrs = [
@@ -79,42 +80,81 @@ class StreamlitApp(StreamlitDemoBase):
         """Override based on demo requirements."""
 
         formatted_params = super().format_detail_params(row)
-        raw_authors = row[1].get("authors", "")
-
-        try:
-            raw_authors = eval(raw_authors)
-            authors = ", ".join([author.get("name", "")
-                                for author in raw_authors])
-        except Exception as err:
-            authors = raw_authors
-            print(err)
-
-        formatted_params["authors"] = authors
-        formatted_params["bio"] = row[1].get("bio", "")
-        formatted_params["img"] = row[1].get("cover", "")
-        formatted_params["createdAt"] = row[1].get("createdAt", "")
-        formatted_params["description"] = row[1].get("description", "")
-        formatted_params["filter"] = row[1].get("filter", "")
-        formatted_params["handle"] = row[1].get("handle", "")
+        detail_filter = row[1].get("filter", "")
+        title = row[1].get("title", "")
+        description = row[1].get("description", "")
+        handle = row[1].get("handle", "")
+        image = row[1].get("image", "")
+        slug = row[1].get("slug", "")
+        owner = row[1].get("owner", "")
+        formatted_params["filter"] = detail_filter
         formatted_params["id"] = row[1].get("id", "")
-        formatted_params["image"] = row[1].get("image", "")
-        formatted_params["invitedByProfileId"] = row[1].get(
-            "invitedByProfileId", "")
-        formatted_params["isbn10"] = row[1].get("isbn10", "")
-        formatted_params["isbn13"] = row[1].get("isbn13", "")
-        formatted_params["language"] = row[1].get("language", "")
-        formatted_params["languages"] = row[1].get("languages", "")
-        formatted_params["name"] = row[1].get("name", "")
-        formatted_params["owner"] = row[1].get("owner", "")
-        formatted_params["pageCount"] = row[1].get("pageCount", "")
-        formatted_params["physicalFormat"] = row[1].get("physicalFormat", "")
-        formatted_params["publishedDate"] = row[1].get("publishedDate", "")
-        formatted_params["publisher"] = row[1].get("publisher", "")
-        formatted_params["slug"] = row[1].get("slug", "")
-        formatted_params["subtitle"] = row[1].get("subtitle", "")
-        formatted_params["title"] = row[1].get("title", "")
-        formatted_params["updatedAt"] = row[1].get("updatedAt", "")
-        formatted_params["detail_title"] = row[1].get("title", "")
+        
+        
+        if detail_filter == "books":
+            raw_authors = row[1].get("authors", "")
+            try:
+                raw_authors = eval(raw_authors)
+                authors = ", ".join([author.get("name", "")
+                                    for author in raw_authors])
+            except Exception as err:
+                authors = raw_authors
+
+            formatted_params["authors"] = authors
+            formatted_params["createdAt"] = row[1].get("createdAt", "")
+            formatted_params["slug"] = slug
+            formatted_params["subtitle"] = row[1].get("subtitle", "")
+            formatted_params["isbn10"] = row[1].get("isbn10", "")
+            formatted_params["isbn13"] = row[1].get("isbn13", "")
+            formatted_params["language"] = row[1].get("language", "")
+            formatted_params["pageCount"] = row[1].get("pageCount", "")
+            formatted_params["physicalFormat"] = row[1].get("physicalFormat", "")
+            formatted_params["publishedDate"] = row[1].get("publishedDate", "")
+            formatted_params["publisher"] = row[1].get("publisher", "")
+            formatted_params["updatedAt"] = row[1].get("updatedAt", "")
+            formatted_params["img"] = row[1].get("cover", "")
+            formatted_params["detail_title"] = title
+            formatted_params["title"] = title
+            formatted_params["description"] = description
+
+        elif detail_filter == "profiles":
+            formatted_params["bio"] = row[1].get("bio", "")
+            formatted_params["invitedByProfileId"] = row[1].get("invitedByProfileId", "")
+            formatted_params["handle"] = handle
+            # formatted_params["image"] = image
+            formatted_params["name"] = row[1].get("name", "")
+            formatted_params["detail_title"] = row[1].get("name", "")
+            formatted_params["img"] = image
+
+        elif detail_filter == "shelves":
+            formatted_params["detail_title"] = title
+            formatted_params["img"] = image
+
+            try:
+                _owner = eval(owner)
+                _owner = _owner["handle"]
+            except Exception as err:
+                _owner = ""
+
+            formatted_params["owner"] = _owner
+            formatted_params["description"] = description
+            formatted_params["slug"] = slug
+
+        else:  # clubs
+            formatted_params["owner"] = owner
+            formatted_params["handle"] = handle
+            try:
+                langs = eval(row[1].get("languages", "[]"))
+                langs = ",".join(langs)
+            except Exception:
+                langs = ""
+            
+            formatted_params["languages"] = langs
+            # formatted_params["image"] = image
+            formatted_params["img"] = image
+            formatted_params["name"] = row[1].get("name", "")
+            formatted_params["detail_title"] = row[1].get("name", "")
+
         return formatted_params
 
     def render_detail_w_img(self, params: dict, row_counter: int):
@@ -127,18 +167,18 @@ class StreamlitApp(StreamlitDemoBase):
         detail_title = params.get("detail_title", "")
         img = params.get("img", "")
         # del params["_id"]
-        del params["bio"]
-        del params["createdAt"]
-        del params["filter"]
-        del params["slug"]
-        del params["updatedAt"]
-        del params["languages"]
-        del params["language"]
-        del params["physicalFormat"]
-        del params["publishedDate"]
-        del params["invitedByProfileId"]
-        del params["publisher"]
-        del params["title"]
+        # del params["bio"]
+        # del params["createdAt"]
+        # del params["filter"]
+        # del params["slug"]
+        # del params["updatedAt"]
+        # del params["languages"]
+        # del params["language"]
+        # del params["physicalFormat"]
+        # del params["publishedDate"]
+        # del params["invitedByProfileId"]
+        # del params["publisher"]
+        # del params["title"]
         del params["_score"]
         del params["_highlights"]
         del params["detail_title"]
